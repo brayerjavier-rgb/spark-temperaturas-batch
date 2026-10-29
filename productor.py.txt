@@ -1,0 +1,17 @@
+from kafka import KafkaProducer
+import pandas as pd
+import time
+
+producer = KafkaProducer(bootstrap_servers='localhost:9092')
+
+df = pd.read_csv("temperaturas.csv")
+df = df.dropna(subset=["temperatura"])
+
+for _, fila in df.iterrows():
+    mensaje = str(fila['temperatura'])
+    producer.send('temperaturas', mensaje.encode('utf-8'))
+    print(f"Enviado: {fila['temperatura']}°C ({fila['ciudad']})")
+    time.sleep(1)
+
+print("✅ Todos los datos enviados")
+producer.flush()
